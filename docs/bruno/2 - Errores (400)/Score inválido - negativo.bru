@@ -1,0 +1,24 @@
+meta {
+  name: Score inválido - negativo
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8000/api/qualifications
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "supplierId": "550e8400-e29b-41d4-a716-446655440011",
+    "auditorId": "550e8400-e29b-41d4-a716-446655440012",
+    "score": -5,
+    "comments": "Score negativo debe dar error"
+  }
+}

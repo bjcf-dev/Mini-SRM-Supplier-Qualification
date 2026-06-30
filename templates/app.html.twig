@@ -1,0 +1,283 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pruébalo tú mismo — SRM{% endblock %}
+
+{% block styles %}
+<style>
+.page-header{margin-bottom:2rem}
+.page-header h1{font-size:1.75rem;font-weight:700;letter-spacing:-.025em}
+.page-header p{color:var(--muted);font-size:.925rem;margin-top:.25rem}
+.grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+@media(min-width:768px){.grid{grid-template-columns:1fr 1fr}}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.card h2 svg{width:18px;height:18px;flex-shrink:0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-hint{display:block;font-size:.6875rem;color:var(--muted);margin-top:.25rem}
+
+#response{
+  margin-top:1rem;padding:.75rem 1rem;border-radius:8px;font-size:.8125rem;display:none;
+  white-space:pre-wrap;word-break:break-word;
+}
+#response.success{display:block;background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0}
+#response.error{display:block;background:var(--red-bg);color:var(--red);border:1px solid #fecaca}
+#response.loading{display:flex;align-items:center;gap:.5rem;color:var(--muted)}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toolbar{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.toolbar .btn{padding:.5rem .875rem;font-size:.8125rem}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+thead th{text-align:left;padding:.625rem .75rem;font-weight:600;color:var(--muted);border-bottom:2px solid var(--border);white-space:nowrap}
+tbody td{padding:.625rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:var(--bg)}
+tbody tr.selected{background:rgba(79,70,229,.06)}
+.empty-state{text-align:center;padding:2rem 0;color:var(--muted);font-size:.875rem}
+.delete-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:6px;transition:color .15s,background .15s;font-size:.875rem}
+.delete-btn:hover{color:var(--red);background:var(--red-bg)}
+input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="page-header">
+    <h1>Pruébalo tú mismo</h1>
+    <p>Crea calificaciones de prueba, consultalas en tiempo real, y eliminalas individualmente o en lote.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/></svg>
+        Nueva Calificación
+      </h2>
+      <form id="qualForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="supplierId">Proveedor (UUID)</label>
+            <input type="text" id="supplierId" placeholder="550e8400-e29b-41d4-a716-446655440001" required>
+            <span class="form-hint">Ej: 550e8400-e29b-41d4-a716-446655440001</span>
+          </div>
+          <div class="form-group">
+            <label for="auditorId">Auditor (UUID)</label>
+            <input type="text" id="auditorId" placeholder="550e8400-e29b-41d4-a716-446655440002" required>
+            <span class="form-hint">Ej: 550e8400-e29b-41d4-a716-446655440002</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="score">Puntuación (0–100)</label>
+            <input type="number" id="score" min="0" max="100" placeholder="85" required>
+          </div>
+          <div class="form-group">
+            <label for="comments">Comentarios</label>
+            <input type="text" id="comments" placeholder="Opcional">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%">Crear Calificación</button>
+      </form>
+      <div id="response"></div>
+    </div>
+
+    <div class="card">
+      <h2>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        Calificaciones
+      </h2>
+      <div class="toolbar">
+        <button class="btn btn-secondary" id="refreshBtn">Refrescar</button>
+        <button class="btn btn-danger" id="deleteSelectedBtn" disabled>Eliminar seleccionadas</button>
+        <button class="btn btn-secondary" id="clearAllBtn" style="margin-left:auto">Eliminar todas</button>
+      </div>
+      <div id="qualList" class="table-wrap"><p class="empty-state">Cargando…</p></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const API = '/api/qualifications';
+const $ = id => document.getElementById(id);
+const form = $('qualForm');
+const response = $('response');
+const submitBtn = $('submitBtn');
+const qualList = $('qualList');
+const deleteSelectedBtn = $('deleteSelectedBtn');
+
+function showResponse(msg, type) {
+  response.className = type;
+  response.textContent = msg;
+}
+
+function genUuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creando…';
+  showResponse('', 'loading');
+  response.innerHTML = '<div class="spinner"></div> Enviando…';
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        supplierId: $('supplierId').value.trim(),
+        auditorId: $('auditorId').value.trim(),
+        score: parseInt($('score').value),
+        comments: $('comments').value.trim(),
+      }),
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      showResponse('✔ Creada — ID: ' + data.id, 'success');
+      form.reset();
+      seedExampleIds();
+      loadQualifications();
+    } else {
+      showResponse('✘ ' + (data.error || JSON.stringify(data)), 'error');
+    }
+  } catch (err) {
+    showResponse('✘ Error de conexión: ' + err.message, 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Crear Calificación';
+  }
+});
+
+async function deleteQualification(id) {
+  try {
+    const res = await fetch(API + '/' + id, { method: 'DELETE' });
+    if (res.ok) {
+      showResponse('✔ Calificación eliminada.', 'success');
+      loadQualifications();
+    } else {
+      const data = await res.json();
+      showResponse('✘ ' + (data.error || 'Error al eliminar.'), 'error');
+    }
+  } catch (err) {
+    showResponse('✘ Error de conexión: ' + err.message, 'error');
+  }
+}
+
+async function loadQualifications() {
+  qualList.innerHTML = '<p class="empty-state"><div class="spinner" style="margin:0 auto"></div></p>';
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (!data.length) {
+      qualList.innerHTML = '<p class="empty-state">No hay calificaciones todavía. ¡Crea una!</p>';
+      updateSelectedCount();
+      return;
+    }
+
+    let html = '<table><thead><tr>' +
+      '<th style="width:32px"><input type="checkbox" id="selectAll"></th>' +
+      '<th>Score</th><th>Estado</th><th>Proveedor</th><th>Auditor</th><th>Comentarios</th><th>Creado</th><th>Vence</th>' +
+      '<th style="width:40px"></th>' +
+      '</tr></thead><tbody>';
+
+    for (const q of data) {
+      const badge = q.status === 'APPROVED' ? 'badge-approved' : 'badge-rejected';
+      const label = q.status === 'APPROVED' ? 'Aprobado' : 'Rechazado';
+      const created = new Date(q.createdAt).toLocaleDateString('es');
+      const expires = new Date(q.expiresAt).toLocaleDateString('es');
+      html += `<tr data-id="${q.id}">
+        <td><input type="checkbox" class="row-check" value="${q.id}"></td>
+        <td><strong>${q.score}</strong></td>
+        <td><span class="badge ${badge}">${label}</span></td>
+        <td style="font-family:monospace;font-size:.75rem">${q.supplierId.slice(0,8)}…</td>
+        <td style="font-family:monospace;font-size:.75rem">${q.auditorId.slice(0,8)}…</td>
+        <td>${q.comments || '—'}</td>
+        <td>${created}</td>
+        <td>${expires}</td>
+        <td><button class="delete-btn" data-id="${q.id}" title="Eliminar">✕</button></td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    qualList.innerHTML = html;
+
+    qualList.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteQualification(btn.dataset.id));
+    });
+
+    qualList.querySelectorAll('.row-check').forEach(cb => {
+      cb.addEventListener('change', updateSelectedCount);
+    });
+
+    $('selectAll').addEventListener('change', function() {
+      qualList.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+      updateSelectedCount();
+    });
+
+    updateSelectedCount();
+  } catch (err) {
+    qualList.innerHTML = '<p class="empty-state">Error al cargar: ' + err.message + '</p>';
+  }
+}
+
+function updateSelectedCount() {
+  const checked = qualList.querySelectorAll('.row-check:checked');
+  deleteSelectedBtn.disabled = checked.length === 0;
+  deleteSelectedBtn.textContent = checked.length
+    ? 'Eliminar (' + checked.length + ')'
+    : 'Eliminar seleccionadas';
+}
+
+$('refreshBtn').addEventListener('click', loadQualifications);
+
+$('clearAllBtn').addEventListener('click', async () => {
+  if (!confirm('¿Eliminar TODAS las calificaciones?')) return;
+  $('clearAllBtn').disabled = true;
+  $('clearAllBtn').textContent = 'Eliminando…';
+  try {
+    const res = await fetch(API, { method: 'DELETE' });
+    if (res.ok) {
+      showResponse('✔ Todas las calificaciones fueron eliminadas.', 'success');
+      loadQualifications();
+    } else {
+      showResponse('✘ Error al eliminar.', 'error');
+    }
+  } catch (err) {
+    showResponse('✘ Error de conexión: ' + err.message, 'error');
+  } finally {
+    $('clearAllBtn').disabled = false;
+    $('clearAllBtn').textContent = 'Eliminar todas';
+  }
+});
+
+deleteSelectedBtn.addEventListener('click', async () => {
+  const ids = [...qualList.querySelectorAll('.row-check:checked')].map(cb => cb.value);
+  if (!ids.length) return;
+  if (!confirm('¿Eliminar ' + ids.length + ' calificación' + (ids.length > 1 ? 'es' : '') + '?')) return;
+  deleteSelectedBtn.disabled = true;
+  deleteSelectedBtn.textContent = 'Eliminando…';
+  try {
+    await Promise.all(ids.map(id => fetch(API + '/' + id, { method: 'DELETE' })));
+    showResponse('✔ ' + ids.length + ' calificación' + (ids.length > 1 ? 'es' : '') + ' eliminada' + (ids.length > 1 ? 's' : '') + '.', 'success');
+    loadQualifications();
+  } catch (err) {
+    showResponse('✘ Error de conexión: ' + err.message, 'error');
+  }
+});
+
+function seedExampleIds() {
+  $('supplierId').value = genUuid();
+  $('auditorId').value = genUuid();
+}
+
+seedExampleIds();
+loadQualifications();
+</script>
+{% endblock %}

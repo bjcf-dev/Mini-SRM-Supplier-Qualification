@@ -1,0 +1,24 @@
+# Environment files (NEVER commit)
+.env
+.env.dev
+.env.test
+.env.local
+.env.*.local
+
+# Dependencies
+/vendor/
+
+# Symfony
+/var/
+/config/secrets/
+
+# Testing
+/phpunit.xml
+/.phpunit.cache/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

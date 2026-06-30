@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}SRM — Homologación de Proveedores{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme=light]{
+  --bg:#f6f8fc;--surface:#fff;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--accent:#4f46e5;--accent-hover:#4338ca;
+  --green:#16a34a;--green-bg:#f0fdf4;--red:#dc2626;--red-bg:#fef2f2;
+  --hero-from:#eef2ff;--hero-to:#f5f3ff;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -2px rgba(0,0,0,.05);
+}
+[data-theme=dark]{
+  --bg:#0f172a;--surface:#1e293b;--border:#334155;
+  --text:#f1f5f9;--muted:#94a3b8;--accent:#818cf8;--accent-hover:#a5b4fc;
+  --green:#22c55e;--green-bg:#052e16;--red:#ef4444;--red-bg:#450a0a;
+  --hero-from:#1e1b4b;--hero-to:#0f172a;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.4),0 2px 4px -2px rgba(0,0,0,.3);
+}
+body{font-family:'Inter',system-ui,-apple-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;transition:background .2s,color .2s}
+.container{max-width:960px;margin:0 auto;padding:2rem 1rem}
+a{color:var(--accent);text-decoration:none;font-weight:500}
+a:hover{text-decoration:underline}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.6875rem 1.25rem;font-size:.875rem;font-weight:600;font-family:inherit;
+  border:none;border-radius:8px;cursor:pointer;
+  transition:background .15s,transform .1s,color .2s,background .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn-ghost{background:transparent;color:var(--muted);padding:.375rem;border-radius:8px}
+.btn-ghost:hover{background:var(--border);color:var(--text)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);transition:background .2s,border .2s}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);transition:background .2s}
+.nav-links{display:flex;align-items:center;gap:1.25rem}
+.nav-links a{font-size:.875rem;font-weight:500;color:var(--muted)}
+.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-brand{font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.5rem}
+.nav-brand:hover{text-decoration:none}
+
+.theme-btn{background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:.375rem .5rem;font-size:.875rem;color:var(--muted);transition:background .15s}
+.theme-btn:hover{background:var(--bg);color:var(--text)}
+
+.badge{display:inline-block;padding:.125rem .5rem;border-radius:999px;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-approved{background:#dcfce7;color:#15803d}
+.badge-rejected{background:#fee2e2;color:#b91c1c}
+[data-theme=dark] .badge-approved{background:#052e16;color:#4ade80}
+[data-theme=dark] .badge-rejected{background:#450a0a;color:#f87171}
+
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.8125rem;font-weight:500;margin-bottom:.375rem}
+.form-group input,.form-group textarea{
+  width:100%;padding:.625rem .75rem;font-size:.875rem;font-family:inherit;
+  border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);
+  transition:border-color .15s,box-shadow .15s;outline:none;
+}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.form-group textarea{resize:vertical;min-height:100px}
+</style>
+{% block styles %}{% endblock %}
+</head>
+<body>
+<nav class="nav">
+  <a href="{{ path('landing') }}" class="nav-brand">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+    SRM
+  </a>
+  <div class="nav-links">
+    <a href="{{ path('app') }}">Pruébalo</a>
+    <a href="{{ path('contact') }}">Contacto</a>
+    <button class="theme-btn" id="themeToggle" aria-label="Cambiar tema">🌙</button>
+  </div>
+</nav>
+{% block body %}{% endblock %}
+<script>
+(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);document.getElementById('themeToggle').textContent=t==='dark'?'☀️':'🌙';document.getElementById('themeToggle').addEventListener('click',function(){const c=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',c);localStorage.setItem('theme',c);this.textContent=c==='dark'?'☀️':'🌙';})})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacto — SRM{% endblock %}
+
+{% block styles %}
+<style>
+.contact-page{max-width:520px;margin:3rem auto}
+.contact-page h1{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:.5rem}
+.contact-page .sub{color:var(--muted);font-size:.925rem;text-align:center;margin-bottom:2rem}
+#contactResponse{margin-top:1rem;padding:.75rem 1rem;border-radius:8px;font-size:.8125rem;display:none}
+#contactResponse.success{display:block;background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0}
+#contactResponse.error{display:block;background:var(--red-bg);color:var(--red);border:1px solid #fecaca}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="contact-page">
+    <h1>Contacto</h1>
+    <p class="sub">¿Querés saber más? Dejanos tus datos y te respondemos a la brevedad.</p>
+    <div class="card">
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="name">Nombre completo</label>
+          <input type="text" id="name" placeholder="Ej: María García" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" placeholder="maria@empresa.com" required>
+        </div>
+        <div class="form-group">
+          <label for="company">Empresa</label>
+          <input type="text" id="company" placeholder="Ej: Mi Empresa S.A." required>
+        </div>
+        <div class="form-group">
+          <label for="message">Mensaje</label>
+          <textarea id="message" placeholder="Contanos cómo podemos ayudarte…" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Enviar mensaje</button>
+      </form>
+      <div id="contactResponse"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button');
+  const resp = document.getElementById('contactResponse');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  setTimeout(() => {
+    resp.className = 'success';
+    resp.textContent = '✓ Mensaje recibido. Nos pondremos en contacto pronto.';
+    btn.disabled = false;
+    btn.textContent = 'Enviar mensaje';
+    this.reset();
+    setTimeout(() => { resp.style.display = 'none'; }, 5000);
+  }, 800);
+});
+</script>
+{% endblock %}

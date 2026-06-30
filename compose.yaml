@@ -1,0 +1,32 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: srm_postgres
+    environment:
+      POSTGRES_DB: srm_qualification
+      POSTGRES_USER: symfony_user
+      POSTGRES_PASSWORD: symfony_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "srm_qualification", "-U", "symfony_user"]
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: srm_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+    environment:
+      DATABASE_URL: "postgresql://symfony_user:symfony_password@database:5432/srm_qualification?serverVersion=16&charset=utf8"
+
+volumes:
+  pgdata:

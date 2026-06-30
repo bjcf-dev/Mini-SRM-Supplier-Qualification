@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SRM — Homologación de Proveedores{% endblock %}
+
+{% block styles %}
+<style>
+.hero{
+  text-align:center;
+  padding:5rem 1rem 4rem;
+  background:linear-gradient(135deg,var(--hero-from),var(--hero-to));
+  border-bottom:1px solid var(--border);
+  transition:background .2s;
+}
+.hero h1{
+  font-size:2.75rem;
+  font-weight:800;
+  letter-spacing:-.03em;
+  line-height:1.15;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero p{color:var(--muted);font-size:1.15rem;margin-top:.75rem;max-width:640px;margin-inline:auto}
+.hero-actions{display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+
+.story{max-width:720px;margin:3rem auto 0}
+.story h2{font-size:1.5rem;font-weight:700;margin-bottom:1rem}
+.story p{color:var(--muted);font-size:.9375rem;margin-bottom:1rem}
+.story p:last-child{margin-bottom:0}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:3rem}
+.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);transition:box-shadow .2s}
+.feature-card:hover{box-shadow:var(--shadow-md)}
+.feature-card h3{font-size:1rem;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.feature-card p{font-size:.875rem;color:var(--muted)}
+.feature-card .icon{width:20px;height:20px;flex-shrink:0}
+
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8125rem;border-top:1px solid var(--border);margin-top:4rem}
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="hero">
+  <h1>Homologación de proveedores sin fricción</h1>
+  <p>Automatiza el proceso de calificación técnica, financiera y legal de tus proveedores. Trazabilidad completa, sin planillas ni correos perdidos.</p>
+  <div class="hero-actions">
+    <a href="{{ path('app') }}" class="btn btn-primary">Pruébalo tú mismo</a>
+    <a href="{{ path('contact') }}" class="btn btn-secondary">Solicitar demo</a>
+  </div>
+</section>
+
+<div class="container">
+  <section class="story">
+    <h2>¿De dónde surge esta solución?</h2>
+    <p>
+      Homologar un proveedor solía ser un proceso de semanas: intercambio de correos,
+      planillas de Excel que viajaban por WhatsApp, criterios que cambiaban según quién
+      auditaba, certificaciones vencidas que nadie controlaba. Un descontrol total.
+    </p>
+    <p>
+      Cada vez que un proveedor nuevo necesitaba ser evaluado, el área de compras,
+      el equipo técnico y el departamento legal entraban en un bucle de información
+      desordenada. Resultado: proveedores no calificados trabajando con la empresa,
+      riesgos legales, y auditorías internas que encontraban todo menos orden.
+    </p>
+    <p>
+      <strong>SRM — Supplier Qualification Management</strong> nace para poner orden
+      donde hay caos. Un sistema centralizado, con reglas claras y automáticas, que
+      cualquier empresa puede adoptar para garantizar que solo proveedores calificados
+      formen parte de su cadena de suministro.
+    </p>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <h3><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Resultados inmediatos</h3>
+      <p>Calificá un proveedor en segundos. El sistema determina automáticamente si está aprobado o rechazado según los criterios de tu empresa.</p>
+    </div>
+    <div class="feature-card">
+      <h3><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Trazabilidad absoluta</h3>
+      <p>Cada dictamen queda registrado con fecha, auditor responsable y vencimiento. Nada se pierde. Nada se modifica. Auditorías reales en minutos.</p>
+    </div>
+    <div class="feature-card">
+      <h3><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>Listo para producción</h3>
+      <p>Arquitectura empresarial probada. Integrable con tus sistemas actuales. Diseñado para escalar de 10 a 10.000 proveedores.</p>
+    </div>
+  </section>
+</div>
+
+<footer>
+  SRM — Supplier Qualification Management
+</footer>
+{% endblock %}
